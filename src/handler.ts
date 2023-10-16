@@ -5,6 +5,8 @@ import { createUserInput, createUserSchema } from './schema/user.schema';
 import validateResource from './middleware/validateResource';
 import { handleError } from './middleware/errHandle';
 import { addUser, destroyUser, fetchUserByID, index, update } from './services/user.service';
+import { TImageUpload, uploadImage } from './services/upload.service';
+import { HttpError } from './middleware/errHandle';
 
 const headers = {
   'content-type': 'application/json',
@@ -131,8 +133,24 @@ export const updateUser = async (event: APIGatewayProxyEvent) => {
       statusCode: 200,
       headers,
       body: JSON.stringify({
-        message: "User updated successfully"
+        message: 'User updated successfully',
       }),
+    };
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+export const s3ImageUpload = async (event: APIGatewayProxyEvent) => {
+  try {
+    const parsedBody = JSON.parse(event.body as string) as TImageUpload;
+
+    const resUpload = await uploadImage(parsedBody);
+
+    return {
+      isBase64Encoded: false,
+      statusCode: 200,
+      body: JSON.stringify({ message: 'Successfully uploaded file to S3', resUpload }),
     };
   } catch (error) {
     return handleError(error);
