@@ -6,7 +6,6 @@ import validateResource from './middleware/validateResource';
 import { handleError } from './middleware/errHandle';
 import { addUser, destroyUser, fetchUserByID, index, update } from './services/user.service';
 import { TImageUpload, uploadImage } from './services/upload.service';
-import { HttpError } from './middleware/errHandle';
 
 const headers = {
   'content-type': 'application/json',
@@ -145,12 +144,15 @@ export const s3ImageUpload = async (event: APIGatewayProxyEvent) => {
   try {
     const parsedBody = JSON.parse(event.body as string) as TImageUpload;
 
-    const resUpload = await uploadImage(parsedBody);
+    const { res, presignedUrl } = await uploadImage(parsedBody);
 
     return {
       isBase64Encoded: false,
       statusCode: 200,
-      body: JSON.stringify({ message: 'Successfully uploaded file to S3', resUpload }),
+      body: JSON.stringify({
+        message: 'Successfully uploaded file to S3',
+        presignedURL: presignedUrl,
+      }),
     };
   } catch (error) {
     return handleError(error);
