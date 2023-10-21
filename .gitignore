@@ -5,6 +5,7 @@ jspm_packages
 .env*
 lib/
 .build/
+build
 .vscode/
 .DS_Store
 serverless.yml
